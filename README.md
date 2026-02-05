@@ -23,8 +23,8 @@ https://www.npmjs.com/package/web-mrz-reader
 
 ## Tech Stack
 
-- **Vanilla JavaScript** - No frameworks, minimal tooling
-- **Vite** - Dev server and production bundler
+- **TypeScript** - Strict mode, modular architecture
+- **Vite** - Dev server and production bundler (handles TS natively)
 - **Tesseract.js v5** - JavaScript OCR engine with WebAssembly (installed via npm)
 - **Custom MRZ Model** - Trained specifically for MRZ text recognition
 - **Web APIs** - MediaDevices, Canvas, Blob
@@ -34,8 +34,13 @@ https://www.npmjs.com/package/web-mrz-reader
 ```
 web-mrz-reader/
 ├── index.html              # Main HTML page
-├── index.js                # Core application logic (ES module)
-├── vite.config.js          # Vite configuration
+├── src/
+│   ├── main.ts             # Entry point: camera, DOM, OCR orchestration
+│   ├── types.ts            # Interfaces: TD1/TD2/TD3 results, validation
+│   ├── checkdigit.ts       # Check digit calculation and validation
+│   └── parsers.ts          # MRZ parsing, extraction, format detection
+├── tsconfig.json           # TypeScript configuration (strict mode)
+├── vite.config.ts          # Vite configuration
 ├── package.json            # Dependencies and scripts
 ├── public/
 │   └── model/
@@ -73,6 +78,12 @@ npm run dev
 3. Position MRZ area within camera view
 4. Click "Capture Image and Extract Text"
 5. View extracted data in JSON format
+
+### Type Check
+
+```bash
+npm run typecheck
+```
 
 ### Production Build
 
