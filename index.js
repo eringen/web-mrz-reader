@@ -31,7 +31,8 @@ function performOCR() {
   canvas.toBlob((blob) => {
     Tesseract.recognize(blob, 'mrz', {
       langPath: './model/',
-      corePath: './'
+      corePath: './',
+      workerPath: './worker.min.js'
     }).then(({ data }) => {
       const { text, words } = data;
       if (isMRZ(text)) {
@@ -45,7 +46,7 @@ function performOCR() {
       }
     }).catch((err) => {
       console.error(err);
-      document.getElementById('output').innerText = 'Error: ' + err.message;
+      document.getElementById('output').innerText = 'Error: ' + (err && err.message ? err.message : err);
       reset();
       document.getElementById('cbutton').disabled = false;
     });
