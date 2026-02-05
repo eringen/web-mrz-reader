@@ -8,6 +8,9 @@ https://eringen.com/blog/browser-based-passport-mrz-reader-with-tesseract-js
 ## Try it
 https://eringen.com/workbench/web-mrz-reader/
 
+## npm
+https://www.npmjs.com/package/web-mrz-reader
+
 ## Features
 
 - Real-time webcam capture
