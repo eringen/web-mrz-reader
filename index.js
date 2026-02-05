@@ -32,7 +32,8 @@ function performOCR() {
     Tesseract.recognize(blob, 'mrz', {
       langPath: './model/',
       corePath: './',
-      workerPath: './worker.min.js'
+      workerPath: './worker.min.js',
+      workerBlobURL: false
     }).then(({ data }) => {
       const { text, words } = data;
       if (isMRZ(text)) {
