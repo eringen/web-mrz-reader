@@ -5,6 +5,9 @@ A browser-based MRZ (Machine Readable Zone) reader that uses webcam capture and 
 ## Doc - Story
 https://eringen.com/blog/browser-based-passport-mrz-reader-with-tesseract-js
 
+## Try it
+https://eringen.com/workbench/web-mrz-reader/
+
 ## Features
 
 - Real-time webcam capture
