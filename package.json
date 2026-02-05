@@ -2,13 +2,14 @@
   "name": "web-mrz-reader",
   "version": "1.0.0",
   "description": "Browser-based MRZ reader supporting TD1, TD2, and TD3 formats. Client-side OCR with custom Tesseract model — no server, no CDN.",
-  "main": "index.js",
+  "main": "src/main.ts",
   "type": "module",
   "scripts": {
     "postinstall": "node copy-tesseract-files.js",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "mrz",
@@ -36,8 +37,9 @@
   },
   "files": [
     "index.html",
-    "index.js",
-    "vite.config.js",
+    "src/",
+    "tsconfig.json",
+    "vite.config.ts",
     "copy-tesseract-files.js",
     "public/model/",
     "readme.md",
@@ -47,6 +49,7 @@
     "tesseract.js": "^5.1.1"
   },
   "devDependencies": {
+    "typescript": "^5.7.3",
     "vite": "^7.3.1"
   }
 }
