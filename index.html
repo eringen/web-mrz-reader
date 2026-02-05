@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MRZ Reader</title>
+  <script src="./tesseract.min.js"></script>
+</head>
+
+<body>
+  <h1>MRZ Reader</h1>
+  <div style="position:relative">
+    <video id="camera" autoplay width="888" height="500"></video>
+    <canvas id="canvas" width="888" height="500" style="position:absolute; top:0; left:0"></canvas>
+  </div>
+  <button id="cbutton" onclick="captureAndPerformOCR()">Capture Image and Extract Text</button>
+  <p id="mrzOutput" style="font-weight: bold; font-family: monospace;"></p>
+  <p id="output" style="font-weight: bold; font-family: monospace;"></p>
+
+  <script src="./index.js"></script>
+</body>
+
+</html>

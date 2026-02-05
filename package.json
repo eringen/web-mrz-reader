@@ -1,0 +1,14 @@
+{
+  "name": "mrz-reader",
+  "version": "1.0.0",
+  "description": "Browser-based MRZ reader supporting TD1, TD2, and TD3 formats",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ilhan negis",
+  "license": "ISC",
+  "dependencies": {
+    "tesseract.js": "^5.1.1"
+  }
+}

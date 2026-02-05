@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+
+# Archives
+*.zip
+*.tar.gz
+
+# Training artifacts
+mrz-training/
+*.lstmf
+*.lstm
+*.traineddata
+!model/*.traineddata.gz
+mode_training.md
+mrz.md
+
+
+# Claude Code
+.claude/
