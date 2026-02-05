@@ -1,3 +1,5 @@
+import Tesseract from 'tesseract.js';
+
 const constraints = {
   video: { 'facingMode': 'environment', width: { min: 888 }, height: { min: 500 } }
 };
@@ -20,6 +22,8 @@ navigator.mediaDevices.getUserMedia(constraints)
     console.error("Error accessing the camera: ", err);
   });
 
+window.captureAndPerformOCR = captureAndPerformOCR;
+
 function captureAndPerformOCR() {
   document.getElementById('cbutton').disabled = true;
   const video = document.getElementById('camera');
@@ -31,9 +35,6 @@ function performOCR() {
   canvas.toBlob((blob) => {
     Tesseract.recognize(blob, 'mrz', {
       langPath: './model/',
-      corePath: './',
-      workerPath: './worker.min.js',
-      workerBlobURL: false
     }).then(({ data }) => {
       const { text, words } = data;
       if (isMRZ(text)) {
