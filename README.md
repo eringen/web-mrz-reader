@@ -2,6 +2,9 @@
 
 A browser-based MRZ (Machine Readable Zone) reader that uses webcam capture and OCR to extract document data. Supports passports, ID cards, and travel documents. All processing happens client-side for privacy.
 
+## Doc - Story
+https://eringen.com/blog/browser-based-passport-mrz-reader-with-tesseract-js
+
 ## Features
 
 - Real-time webcam capture
