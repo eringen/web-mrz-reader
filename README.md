@@ -20,25 +20,24 @@ https://eringen.com/workbench/web-mrz-reader/
 
 ## Tech Stack
 
-- **Vanilla JavaScript** - No frameworks, no build process, no bundler required
-- **Tesseract.js v5.1.1** - JavaScript OCR engine with WebAssembly
+- **Vanilla JavaScript** - No frameworks, minimal tooling
+- **Vite** - Dev server and production bundler
+- **Tesseract.js v5** - JavaScript OCR engine with WebAssembly (installed via npm)
 - **Custom MRZ Model** - Trained specifically for MRZ text recognition
 - **Web APIs** - MediaDevices, Canvas, Blob
 
 ## Project Structure
 
 ```
-mrz-reader/
-├── index.html                        # Main HTML page
-├── index.js                          # Core application logic
-├── model/
-│   └── mrz.traineddata.gz            # Custom Tesseract model for MRZ
-├── tesseract.min.js                  # Tesseract library
-├── tesseract-core.wasm               # WASM OCR engine
-├── tesseract-core-simd-lstm.wasm.js  # SIMD-optimized WASM engine
-├── worker.min.js                     # Web Worker for OCR processing
-├── model_training.md                 # Guide for training an improved model
-└── package.json                      # Project metadata
+web-mrz-reader/
+├── index.html              # Main HTML page
+├── index.js                # Core application logic (ES module)
+├── vite.config.js          # Vite configuration
+├── package.json            # Dependencies and scripts
+├── public/
+│   └── model/
+│       └── mrz.traineddata.gz  # Custom Tesseract model for MRZ
+└── model_training.md       # Guide for training an improved model
 ```
 
 ## Supported Formats
@@ -61,14 +60,28 @@ mrz-reader/
 
 ## Usage
 
-1. Open `index.html` in a modern browser (Chrome, Firefox, Safari)
+```bash
+npm install
+npm run dev
+```
+
+1. Open the local URL shown by Vite
 2. Allow camera access when prompted
 3. Position MRZ area within camera view
 4. Click "Capture Image and Extract Text"
 5. View extracted data in JSON format
 
+### Production Build
+
+```bash
+npm run build
+```
+
+The output in `dist/` can be deployed to any static host.
+
 ## Requirements
 
+- Node.js (for build tooling)
 - Modern browser with WebAssembly support
 - Camera access permission
 - HTTPS or localhost (required for camera API)

@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Copied from node_modules by postinstall
+public/tesseract/
+
 # OS files
 .DS_Store
 Thumbs.db

@@ -34,6 +34,8 @@ function captureAndPerformOCR() {
 function performOCR() {
   canvas.toBlob((blob) => {
     Tesseract.recognize(blob, 'mrz', {
+      workerPath: './tesseract/worker.min.js',
+      corePath: './tesseract/',
       langPath: './model/',
     }).then(({ data }) => {
       const { text, words } = data;

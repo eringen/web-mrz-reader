@@ -1,9 +1,10 @@
 {
-  "name": "mrz-reader",
+  "name": "web-mrz-reader",
   "version": "1.0.0",
   "description": "Browser-based MRZ reader supporting TD1, TD2, and TD3 formats",
   "main": "index.js",
   "scripts": {
+    "postinstall": "node copy-tesseract-files.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
