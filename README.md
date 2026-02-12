@@ -11,6 +11,71 @@ https://eringen.com/workbench/web-mrz-reader/
 ## npm
 https://www.npmjs.com/package/web-mrz-reader
 
+## NPM User Guide
+
+### 1. Copy Static Assets
+
+Copy the trained model and Tesseract runtime files into your project's public/static directory:
+
+```bash
+mkdir -p public/model public/tesseract
+
+# MRZ-trained OCR model
+cp node_modules/web-mrz-reader/public/model/mrz.traineddata.gz public/model/
+
+# Tesseract.js worker and WASM cores
+cp node_modules/tesseract.js/dist/worker.min.js public/tesseract/
+cp node_modules/tesseract.js-core/tesseract-core-simd-lstm.wasm.js public/tesseract/
+cp node_modules/tesseract.js-core/tesseract-core-simd.wasm.js public/tesseract/
+cp node_modules/tesseract.js-core/tesseract-core-lstm.wasm.js public/tesseract/
+cp node_modules/tesseract.js-core/tesseract-core.wasm.js public/tesseract/
+```
+
+### 2. Add Required HTML Elements
+
+The script expects these specific element IDs to be present in the DOM:
+
+```html
+<div style="position: relative">
+  <video id="camera" autoplay width="888" height="500"></video>
+  <canvas id="canvas" width="888" height="500"
+          style="position: absolute; top: 0; left: 0"></canvas>
+</div>
+
+<button id="cbutton" onclick="captureAndPerformOCR()">
+  Capture & Read MRZ
+</button>
+
+<p id="mrzOutput" style="font-weight: bold; font-family: monospace;"></p>
+<p id="output" style="font-weight: bold; font-family: monospace;"></p>
+```
+
+### 3. Include the Script
+
+Copy `index.js` from the package into your project and load it as an ES module:
+
+```bash
+cp node_modules/web-mrz-reader/index.js src/mrz-reader.js
+```
+
+```html
+<script type="module" src="./mrz-reader.js"></script>
+```
+
+### 4. Adjust Paths (if needed)
+
+If your static assets are served from a different directory, update the Tesseract paths inside the copied JS file:
+
+```js
+Tesseract.recognize(blob, 'mrz', {
+  workerPath: './tesseract/worker.min.js',   // adjust these
+  corePath: './tesseract/',                   // to match your
+  langPath: './model/',                       // asset paths
+})
+```
+
+---------------------
+
 ## Features
 
 - Real-time webcam capture
