@@ -5,17 +5,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MRZ Reader</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+    h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 1.5rem; }
+    .camera-wrap { position: relative; width: 100%; max-width: 888px; aspect-ratio: 888 / 500; background: #111; border-radius: 8px; overflow: hidden; border: 1px solid #222; }
+    .camera-wrap video, .camera-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    button { margin-top: 1.25rem; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 500; color: #fff; background: #1a73e8; border: none; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+    button:hover { background: #1557b0; }
+    button:disabled { background: #333; color: #666; cursor: not-allowed; }
+    #mrzOutput { margin-top: 1.25rem; font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; color: #4ade80; max-width: 888px; width: 100%; }
+    #output { margin-top: 0.75rem; font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; font-size: 0.8rem; line-height: 1.5; white-space: pre-wrap; color: #94a3b8; max-width: 888px; width: 100%; }
+    footer { margin-top: auto; padding-top: 2rem; font-size: 0.8rem; color: #555; }
+    footer a { color: #6b9eff; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
 </head>
 
 <body>
   <h1>MRZ Reader</h1>
-  <div style="position:relative">
+  <div class="camera-wrap">
     <video id="camera" autoplay width="888" height="500"></video>
-    <canvas id="canvas" width="888" height="500" style="position:absolute; top:0; left:0"></canvas>
+    <canvas id="canvas" width="888" height="500"></canvas>
   </div>
-  <button id="cbutton" onclick="captureAndPerformOCR()">Capture Image and Extract Text</button>
-  <p id="mrzOutput" style="font-weight: bold; font-family: monospace;"></p>
-  <p id="output" style="font-weight: bold; font-family: monospace;"></p>
+  <button id="cbutton" onclick="captureAndPerformOCR()">Capture &amp; Read MRZ</button>
+  <p id="mrzOutput"></p>
+  <p id="output"></p>
+  <footer><a href="https://eringen.com/blog/browser-based-passport-mrz-reader-with-tesseract-js">How it works</a></footer>
 
   <script type="module" src="./src/main.ts"></script>
 </body>
