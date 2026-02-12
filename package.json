@@ -1,6 +1,6 @@
 {
   "name": "web-mrz-reader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Browser-based MRZ reader supporting TD1, TD2, and TD3 formats. Client-side OCR with custom Tesseract model — no server, no CDN.",
   "main": "src/main.ts",
   "type": "module",
