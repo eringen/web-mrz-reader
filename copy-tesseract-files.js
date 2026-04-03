@@ -3,22 +3,50 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dest = path.join(__dirname, 'public', 'tesseract');
+const packageRoot = __dirname;
+
+function findModulePath(moduleName) {
+  let current = packageRoot;
+  while (true) {
+    const candidate = path.join(current, 'node_modules', moduleName);
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return null;
+}
+
+const tesseractJsPath = findModulePath('tesseract.js');
+const tesseractCorePath = findModulePath('tesseract.js-core');
+
+if (!tesseractJsPath) {
+  console.warn('Warning: tesseract.js not found, skipping tesseract file copy');
+  process.exit(0);
+}
+
+const dest = path.join(packageRoot, 'public', 'tesseract');
 fs.mkdirSync(dest, { recursive: true });
 
 const files = [
-  ['node_modules/tesseract.js/dist/worker.min.js', 'worker.min.js'],
-  ['node_modules/tesseract.js-core/tesseract-core-simd-lstm.wasm.js', 'tesseract-core-simd-lstm.wasm.js'],
-  ['node_modules/tesseract.js-core/tesseract-core-simd.wasm.js', 'tesseract-core-simd.wasm.js'],
-  ['node_modules/tesseract.js-core/tesseract-core-lstm.wasm.js', 'tesseract-core-lstm.wasm.js'],
-  ['node_modules/tesseract.js-core/tesseract-core.wasm.js', 'tesseract-core.wasm.js'],
+  [path.join(tesseractJsPath, 'dist', 'worker.min.js'), 'worker.min.js'],
 ];
 
+if (tesseractCorePath) {
+  files.push([path.join(tesseractCorePath, 'tesseract-core-simd-lstm.wasm.js'), 'tesseract-core-simd-lstm.wasm.js']);
+  files.push([path.join(tesseractCorePath, 'tesseract-core-simd.wasm.js'), 'tesseract-core-simd.wasm.js']);
+  files.push([path.join(tesseractCorePath, 'tesseract-core-lstm.wasm.js'), 'tesseract-core-lstm.wasm.js']);
+  files.push([path.join(tesseractCorePath, 'tesseract-core.wasm.js'), 'tesseract-core.wasm.js']);
+}
+
 for (const [src, name] of files) {
-  const srcPath = path.join(__dirname, src);
-  const destPath = path.join(dest, name);
-  if (fs.existsSync(srcPath)) {
-    fs.copyFileSync(srcPath, destPath);
+  if (fs.existsSync(src)) {
+    const destPath = path.join(dest, name);
+    fs.copyFileSync(src, destPath);
     console.log(`Copied ${name}`);
+  } else {
+    console.warn(`Warning: ${src} not found, skipping`);
   }
 }

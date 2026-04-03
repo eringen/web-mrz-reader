@@ -8,7 +8,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationDir": "dist",
+    "emitDeclarationOnly": true
   },
-  "include": ["src"]
+  "include": ["src/index.ts"],
+  "exclude": ["src/main.demo.ts"]
 }

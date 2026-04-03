@@ -1,13 +1,21 @@
 {
   "name": "web-mrz-reader",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Browser-based MRZ reader supporting TD1, TD2, and TD3 formats. Client-side OCR with custom Tesseract model — no server, no CDN.",
-  "main": "src/main.ts",
   "type": "module",
+  "main": "./dist/web-mrz-reader.js",
+  "module": "./dist/web-mrz-reader.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/web-mrz-reader.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "postinstall": "node copy-tesseract-files.js",
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc --emitDeclarationOnly && vite build --emptyOutDir false",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
@@ -36,19 +44,18 @@
     "url": "https://github.com/eringen/web-mrz-reader/issues"
   },
   "files": [
-    "index.html",
-    "src/",
-    "tsconfig.json",
-    "vite.config.ts",
-    "copy-tesseract-files.js",
+    "dist/",
     "public/model/",
-    "readme.md",
+    "public/tesseract/",
+    "copy-tesseract-files.js",
+    "README.md",
     "LICENSE"
   ],
-  "dependencies": {
+  "peerDependencies": {
     "tesseract.js": "^5.1.1"
   },
   "devDependencies": {
+    "@types/node": "^25.5.2",
     "typescript": "^5.7.3",
     "vite": "^7.3.1"
   }

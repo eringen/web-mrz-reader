@@ -160,7 +160,7 @@ export function parseMrz(mrz: string): MRZResult | string {
   }
 }
 
-export function extractMRZData(text: string): string | undefined {
+export function extractMRZData(text: string): { raw: string; parsed: MRZResult | string } | undefined {
   const input = text.replace(/(\r\n|\n|\r)/gm, "");
   const regex = /[PIAC][A-Z<][A-Z]{3}[A-Z0-9<]+/;
   const match = input.match(regex);
@@ -184,16 +184,11 @@ export function extractMRZData(text: string): string | undefined {
 
   const parsedMrz = parseMrz(mrzRaw);
 
-  if (typeof parsedMrz === 'string') {
-    return parsedMrz;
-  }
-
-  const outputEl = document.getElementById('output');
-  if (outputEl) {
-    outputEl.innerText = JSON.stringify(parsedMrz, null, 2);
-  }
-
   let result = splitIntoLines(mrzRaw);
+
+  if (typeof parsedMrz === 'string') {
+    return { raw: result, parsed: parsedMrz };
+  }
 
   if ('Validation' in parsedMrz && !parsedMrz.Validation.isValid) {
     const failed: string[] = [];
@@ -206,5 +201,5 @@ export function extractMRZData(text: string): string | undefined {
     if (!validation.composite) failed.push('Composite');
     result += '\n\nWarning: Check digit validation failed for: ' + failed.join(', ');
   }
-  return result;
+  return { raw: result, parsed: parsedMrz };
 }
