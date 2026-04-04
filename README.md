@@ -11,6 +11,15 @@ https://eringen.com/workbench/web-mrz-reader/
 ## npm
 https://www.npmjs.com/package/web-mrz-reader
 
+## React Wrapper
+https://www.npmjs.com/package/web-mrz-reader-react
+
+For React projects, use the official wrapper:
+```bash
+npm install web-mrz-reader-react
+```
+See [web-mrz-reader-react](https://github.com/eringen/web-mrz-reader-react) for docs.
+
 ## NPM User Guide
 
 ### 1. Install
