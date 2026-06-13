@@ -5,7 +5,11 @@ export { isMRZ, extractMRZData, parseMrz };
 export type { MRZResult, TD1Result, TD2Result, TD3Result, ValidationResult, TD3ValidationResult } from './types.js';
 
 const constraints: MediaStreamConstraints = {
-  video: { facingMode: 'environment', width: { min: 888 }, height: { min: 500 } }
+  video: {
+    facingMode: { ideal: 'environment' },
+    width: { ideal: 888 },
+    height: { ideal: 500 },
+  },
 };
 
 export interface MRZReaderOptions {
@@ -38,6 +42,8 @@ export function initMRZReader(options: MRZReaderOptions): MRZReaderInstance {
 
   const video = document.createElement('video');
   video.autoplay = true;
+  video.muted = true;
+  video.playsInline = true;
   video.width = 888;
   video.height = 500;
   video.style.width = '100%';
@@ -76,6 +82,18 @@ export function initMRZReader(options: MRZReaderOptions): MRZReaderInstance {
 
   let stream: MediaStream | null = null;
 
+  const workerPromise = Tesseract.createWorker('mrz', Tesseract.OEM.LSTM_ONLY, {
+    workerPath,
+    corePath,
+    langPath,
+  }).then(async (createdWorker) => {
+    await createdWorker.setParameters({
+      tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
+    });
+    return createdWorker;
+  });
+
   navigator.mediaDevices.getUserMedia(constraints)
     .then((s) => {
       stream = s;
@@ -98,11 +116,7 @@ export function initMRZReader(options: MRZReaderOptions): MRZReaderInstance {
   function performOCR(): void {
     canvas.toBlob((blob) => {
       if (!blob) return;
-      Tesseract.recognize(blob, 'mrz', {
-        workerPath,
-        corePath,
-        langPath,
-      }).then(({ data }) => {
+      workerPromise.then((ocrWorker) => ocrWorker.recognize(blob)).then(({ data }) => {
         const { text, words } = data;
         if (isMRZ(text)) {
           const result = extractMRZData(text);
