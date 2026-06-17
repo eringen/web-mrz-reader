@@ -22,7 +22,7 @@ export interface MRZReaderOptions {
 }
 
 export interface MRZReaderInstance {
-  capture: () => void;
+  capture: () => Promise<void>;
   reset: () => void;
   stop: () => void;
 }
@@ -81,6 +81,10 @@ export function initMRZReader(options: MRZReaderOptions): MRZReaderInstance {
   }
 
   let stream: MediaStream | null = null;
+  let worker: Tesseract.Worker | null = null;
+  let stopped = false;
+  let captureId = 0;
+  let activeCapture: Promise<void> | null = null;
 
   const workerPromise = Tesseract.createWorker('mrz', Tesseract.OEM.LSTM_ONLY, {
     workerPath,
@@ -91,48 +95,109 @@ export function initMRZReader(options: MRZReaderOptions): MRZReaderInstance {
       tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
       tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
     });
+    worker = createdWorker;
     return createdWorker;
   });
+  void workerPromise.catch(() => undefined);
 
-  navigator.mediaDevices.getUserMedia(constraints)
+  const mediaDevices = navigator.mediaDevices;
+  if (!mediaDevices?.getUserMedia) {
+    options.onError?.('Error accessing the camera: MediaDevices API is unavailable');
+  } else {
+    mediaDevices.getUserMedia(constraints)
     .then((s) => {
+      if (stopped) {
+        s.getTracks().forEach((track) => track.stop());
+        return;
+      }
       stream = s;
       video.srcObject = stream;
     })
     .catch((err) => {
+      if (stopped) return;
       const message = err instanceof Error ? err.message : String(err);
       options.onError?.('Error accessing the camera: ' + message);
     });
+  }
 
   function reset(): void {
     context.clearRect(0, 0, 888, 500);
   }
 
-  function capture(): void {
+  function capture(): Promise<void> {
+    if (stopped) return Promise.resolve();
+    if (activeCapture) return activeCapture;
+    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      options.onError?.('Camera is not ready yet');
+      return Promise.resolve();
+    }
+
+    const currentCaptureId = ++captureId;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    performOCR();
+    const capturePromise = new Promise<void>((resolve) => {
+      try {
+        canvas.toBlob((blob) => {
+          if (!blob || stopped || currentCaptureId !== captureId) {
+            resolve();
+            return;
+          }
+
+          workerPromise
+            .then((ocrWorker) => ocrWorker.recognize(blob, {}, {
+              text: true,
+              blocks: true,
+              hocr: false,
+              tsv: false,
+            }))
+            .then(({ data }) => {
+              if (stopped || currentCaptureId !== captureId) return;
+              const { text, words } = data;
+              if (isMRZ(text)) {
+                const result = extractMRZData(text);
+                if (result) {
+                  options.onResult?.(result);
+                }
+                drawBoundingBoxes(words);
+              } else {
+                reset();
+              }
+            })
+            .catch((err: unknown) => {
+              if (stopped || currentCaptureId !== captureId) return;
+              const message = err instanceof Error ? err.message : String(err);
+              options.onError?.('Error: ' + message);
+              reset();
+            })
+            .finally(resolve);
+        }, 'image/jpeg', 0.92);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        options.onError?.('Error capturing frame: ' + message);
+        resolve();
+      }
+    });
+
+    activeCapture = capturePromise;
+    void capturePromise.finally(() => {
+      if (activeCapture === capturePromise) {
+        activeCapture = null;
+      }
+    });
+    return capturePromise;
   }
 
-  function performOCR(): void {
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      workerPromise.then((ocrWorker) => ocrWorker.recognize(blob)).then(({ data }) => {
-        const { text, words } = data;
-        if (isMRZ(text)) {
-          const result = extractMRZData(text);
-          if (result) {
-            options.onResult?.(result);
-          }
-          drawBoundingBoxes(words);
-        } else {
-          reset();
-        }
-      }).catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err);
-        options.onError?.('Error: ' + message);
-        reset();
-      });
-    });
+  function terminateWorker(): void {
+    if (worker) {
+      const currentWorker = worker;
+      worker = null;
+      void currentWorker.terminate().catch(() => undefined);
+      return;
+    }
+
+    void workerPromise.then((createdWorker) => {
+      worker = null;
+      return createdWorker.terminate();
+    }).catch(() => undefined);
   }
 
   function drawBoundingBoxes(words: Tesseract.Word[]): void {
@@ -145,10 +210,16 @@ export function initMRZReader(options: MRZReaderOptions): MRZReaderInstance {
   }
 
   function stop(): void {
+    if (stopped) return;
+    stopped = true;
+    captureId += 1;
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
       stream = null;
     }
+    video.pause();
+    video.srcObject = null;
+    terminateWorker();
   }
 
   return { capture, reset, stop };
