@@ -105,6 +105,16 @@ export function initMRZReader(options: MRZReaderOptions): MRZReaderInstance {
     options.onError?.('Error accessing the camera: MediaDevices API is unavailable');
   } else {
     mediaDevices.getUserMedia(constraints)
+    .catch((err: unknown) => {
+      const errorName = err && typeof err === 'object' && 'name' in err
+        ? String(err.name)
+        : '';
+      if (errorName !== 'OverconstrainedError') throw err;
+      return mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
+      });
+    })
     .then((s) => {
       if (stopped) {
         s.getTracks().forEach((track) => track.stop());
