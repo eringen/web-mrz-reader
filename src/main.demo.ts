@@ -19,8 +19,11 @@ const mrzReader = initMRZReader({
 });
 
 const cbutton = document.getElementById('cbutton') as HTMLButtonElement;
-cbutton.addEventListener('click', () => {
+cbutton.addEventListener('click', async () => {
   cbutton.disabled = true;
-  mrzReader.capture();
-  setTimeout(() => { cbutton.disabled = false; }, 3000);
+  try {
+    await mrzReader.capture();
+  } finally {
+    cbutton.disabled = false;
+  }
 });

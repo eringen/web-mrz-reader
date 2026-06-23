@@ -94,11 +94,14 @@ const mrzReader = initMRZReader({
   },
 });
 
-document.getElementById('cbutton').addEventListener('click', () => {
+document.getElementById('cbutton').addEventListener('click', async () => {
   const btn = document.getElementById('cbutton');
   btn.disabled = true;
-  mrzReader.capture();
-  setTimeout(() => { btn.disabled = false; }, 3000);
+  try {
+    await mrzReader.capture();
+  } finally {
+    btn.disabled = false;
+  }
 });
 ```
 
@@ -125,7 +128,7 @@ const mrzReader = initMRZReader({
   onError: (error) => {},         // called on camera or OCR errors
 });
 
-mrzReader.capture();   // capture frame and run OCR
+await mrzReader.capture(); // capture frame and wait for OCR
 mrzReader.reset();     // clear canvas
 mrzReader.stop();      // stop camera stream
 ```
