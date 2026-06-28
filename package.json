@@ -17,7 +17,8 @@
     "dev": "vite",
     "build": "tsc --emitDeclarationOnly && vite build --emptyOutDir false",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs"
   },
   "keywords": [
     "mrz",
