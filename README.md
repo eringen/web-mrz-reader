@@ -133,6 +133,43 @@ mrzReader.reset();     // clear canvas
 mrzReader.stop();      // stop camera stream
 ```
 
+### Continuous scanning
+
+For automatic reading, enable `autoScan`. A cropped scan region reduces the work
+per frame; place all two or three MRZ lines inside the green guide:
+
+```js
+const reader = initMRZReader({
+  container: '#mrz-reader',
+  autoScan: true,
+  scanRegion: { left: 0.05, top: 0.55, width: 0.9, height: 0.35 },
+  onResult: ({ parsed }) => console.log(parsed),
+  onError: (message) => console.error(message),
+});
+
+reader.pauseScanning(); // keep the camera and warm OCR worker ready
+reader.startScanning(); // resume on the next available frame
+reader.reset();         // clear feedback and allow the same document to emit again
+reader.stop();          // final cleanup: release camera/worker and remove reader UI
+```
+
+`scanRegion` uses fractions of the visible preview (0–1); omit it to scan the
+whole preview. The example processes 799 × 175 pixels instead of 888 × 500,
+about 69% fewer pixels, without reducing the character scale. Portrait and
+landscape cameras use the same crop shown in the preview.
+
+Continuous scanning keeps one OCR job in flight, takes a fresh frame after it
+finishes, and pauses while the tab is hidden. It emits results only when every
+check digit passes and suppresses repeated identical results until `reset()` or
+a different valid MRZ is read. Check digits detect reading errors; they do not
+authenticate a document. Manual captures retain the existing validation diagnostics.
+
+Live scanning defaults to text-only OCR for speed. Set `drawBoundingBoxes: true`
+to request word geometry and draw boxes; manual captures still enable them by
+default. The preview stays live while OCR runs. Actual throughput depends on
+the device, lighting, focus, and MRZ size. Reinitializing the same container
+cleans up its previous reader. After `stop()`, create a new instance to restart.
+
 ### Standalone Parsing (no camera)
 
 If you already have MRZ text and just want to parse it:
@@ -222,7 +259,7 @@ npm run dev
 1. Open the local URL shown by Vite
 2. Allow camera access when prompted
 3. Position MRZ area within camera view
-4. Click "Capture & Read MRZ"
+4. Fit all MRZ lines inside the green guide; reading starts automatically
 5. View extracted data in JSON format
 
 ### Type Check
@@ -230,6 +267,15 @@ npm run dev
 ```bash
 npm run typecheck
 ```
+
+### Regression tests
+
+```bash
+npm test
+```
+
+The tests simulate camera frames and delayed worker operations to cover live
+scanning, cancellation, initialization failures, duplicate results, and cropping.
 
 ### Production Build
 

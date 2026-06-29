@@ -25,7 +25,7 @@ export interface MRZReaderOptions {
   autoScan?: boolean;
   /** Visible preview area to scan. Defaults to the entire preview. */
   scanRegion?: ScanRegion;
-  /** Defaults to false for autoScan, true for manual capture. */
+  /** Defaults to false during continuous scanning, true for manual capture. */
   drawBoundingBoxes?: boolean;
   onResult?: (result: ReturnType<typeof extractMRZData>) => void;
   onError?: (error: string) => void;

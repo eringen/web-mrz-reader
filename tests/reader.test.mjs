@@ -247,3 +247,31 @@ test('drawing and encoding failures settle captures and stop live retries', asyn
     assert.equal(h.jobs.length, 0); h.reader.stop();
   }
 });
+
+test('reset invalidates pending OCR without starting an overlapping read', async () => {
+  const h = harness(); await tick();
+  const read = h.reader.capture(); await tick(); h.reader.reset();
+  assert.equal(h.reader.capture(), read);
+  h.finish(); await read; assert.equal(h.results.length, 0);
+  const fresh = h.reader.capture(); await tick(); h.finish(); await fresh;
+  assert.equal(h.results.length, 1); h.reader.stop();
+});
+
+test('manual cropped capture maps boxes back into the preview', async () => {
+  const h = harness({ options: { scanRegion: roi } }); await tick();
+  const read = h.reader.capture(); await tick(); h.finish(); await read;
+  assert.equal(h.jobs[0].output.blocks, true);
+  const overlay = h.elements.filter((el) => el.tag === 'canvas')[1];
+  const [x, y, width, height] = overlay.context.boxes[0];
+  assert.equal(x, 888 * roi.left); assert.equal(y, 500 * roi.top);
+  assert.ok(Math.abs(width - 10) < 0.01); assert.equal(height, 10);
+  h.reader.stop();
+});
+
+test('recognition rejection settles capture and allows a manual retry', async () => {
+  const h = harness(); await tick(); const first = h.reader.capture(); await tick();
+  h.jobs[0].reject(new Error('OCR failed')); await first;
+  assert.equal(h.errors.length, 1);
+  const next = h.reader.capture(); await tick(); h.finish(); await next;
+  assert.equal(h.results.length, 1); h.reader.stop();
+});
